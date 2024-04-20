@@ -24,28 +24,17 @@ def run_bot():
         except Exception as e:
             print(e)
 
-    @tree.command(name="test")
-    async def hello(interaction: discord.Interaction):
-        await interaction.response.send_message(f"hey {interaction.user.mention}! if you see this message, your slash commands work now ;-;")
-
-    @tree.command(name="speak")
-    @app_commands.describe(thing_to_say = "What should I say?")
-    async def speak(interaction, thing_to_say: str):
-        await interaction.response.send_message(f"{interaction.user.name} said: {thing_to_say}")
-
     ## generates the verification token
     @tree.command(name='token', description='Sends a token for verification. Can only be used with Manage Roles permissions.')
     @app_commands.checks.has_permissions(manage_roles=True)
     async def token(interaction: discord.Interaction):
         if not interaction.user.guild_permissions.manage_roles:
-            await interaction.response.send_message("You do not have permission to use this command.") # put ephemerals back when know code work
+            await interaction.response.send_message("You do not have enough permissions to use this command.")
             return
         
-        ## saves the token in a json file
         with open('token.json', 'w') as f:
-            json.dump({'verif_token': verif_token}, f, indent=2)
-        
-        await interaction.response.send_message(f"{verif_token}") # same instruction, refer to line 37 command
+            json.dump({'verif_token': verif_token}, f, separators=(',', ':'))
+        await interaction.response.send_message(verif_token)
         return
 
     
@@ -56,23 +45,29 @@ def run_bot():
             token_data = json.load(file)
             
         ## gets the token from the json file & checks if the token is correct    
-        verif_token = token_data['verif_token'] 
+        verif_token = token_data['verif_token']
         if verif_token == arg:
-            try:
-                guild = client.get_guild(853924006264569886) # gets server id 
-                role = guild.get_role(1127415902296612945) # gets role id for "verified account"
-                await interaction.guild.get_member(interaction.user.id).add_roles(role)
-                await interaction.response.send_message(f"Successfully verified! Welcome to the server, {interaction.user.mention}!")
-            except AttributeError: # if it's a dm
-                await interaction.response.send_message(f"Successfully verified! Welcome to the server!")
+            guild = client.get_guild(853924006264569886)  # gets server id
+            member = guild.get_member(interaction.user.id)
+            role_id = 1127415902296612945 # role id of "verified account"
+            role = guild.get_role(role_id)
 
+            if role in member.roles:
+                return
+
+            await member.add_roles(role)
+            if interaction.guild is not None:
+                await interaction.response.send_message(f"Successfully verified! Welcome to the server, {interaction.user.mention}!")
+            else:
+                await interaction.response.send_message(f"Successfully verified! Welcome to the server!")
 
             ## deleting token after it has been used (for security purposes)
             try:
                 os.remove("token.json")
             except OSError:
                 pass
-
+            return
+    
     client.run(DISCORD_TOKEN)
 
     ## TODO: implement dm verification
