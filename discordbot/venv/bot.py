@@ -45,12 +45,12 @@ def run_bot():
         with open('token.json', 'w') as f:
             json.dump({'verif_token': verif_token}, f, indent=2)
         
-        await interaction.response.send_message(f"Verify using: {verif_token}") # same instruction, refer to line 37 command
+        await interaction.response.send_message(f"{verif_token}") # same instruction, refer to line 37 command
         return
 
     
     ## verifies the user using the generated token
-    @tree.command(name='verify', description='Verifies you using the token provided from your inviter.')
+    @tree.command(name='verify', description='Verifies you using the token provided from your inviter. Works in only servers.')
     async def verify(interaction: discord.Interaction, arg: str):
         with open('token.json', 'r') as file:
             token_data = json.load(file)
@@ -58,11 +58,14 @@ def run_bot():
         ## gets the token from the json file & checks if the token is correct    
         verif_token = token_data['verif_token'] 
         if verif_token == arg:
-            user = interaction.user
-            role = discord.utils.get(interaction.guild.roles, name="Verified Account")
+            try:
+                guild = client.get_guild(853924006264569886) # gets server id 
+                role = guild.get_role(1127415902296612945) # gets role id for "verified account"
+                await interaction.guild.get_member(interaction.user.id).add_roles(role)
+                await interaction.response.send_message(f"Successfully verified! Welcome to the server, {interaction.user.mention}!")
+            except AttributeError: # if it's a dm
+                await interaction.response.send_message(f"Successfully verified! Welcome to the server!")
 
-            await interaction.user.add_roles(role)
-            await interaction.response.send_message(f"Successfully verified! {user.mention}, welcome to the server!")
 
             ## deleting token after it has been used (for security purposes)
             try:
@@ -70,5 +73,7 @@ def run_bot():
             except OSError:
                 pass
 
-
     client.run(DISCORD_TOKEN)
+
+    ## TODO: implement dm verification
+    ## TODO: add ephemerals back on line 41 and 48
