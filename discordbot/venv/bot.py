@@ -8,8 +8,8 @@ from discord import app_commands
 from dotenv import load_dotenv
 
 # For colorcoding purposes
-from mutefxc import cc as fxc
-from mutefxc import p as f
+from colorcode import cc as fxc
+from colorcode import p as f
 
 ## runs the bot by retrieving the bot's token from the .env file
 def keygenr():
