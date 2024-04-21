@@ -90,7 +90,7 @@ class p():
         if (mode == 'print'):
             print(stringr)
         elif (mode == 'text'):
-            return stringr
+            return str(stringr)
     def PRINTZ(text:str="", mode:str='print'):
         stringr = (
                 cc.timeIntro()+
