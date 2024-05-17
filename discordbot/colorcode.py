@@ -3,6 +3,7 @@ import datetime
 
 
 class cc():
+    _init = lambda o: colorama.init()
     RESETf = colorama.Fore.RESET
     RESETb = colorama.Back.RESET
     RESET = '\x1b[0m'+"\x1b[38;2;222;222;222m"
@@ -28,7 +29,8 @@ class cc():
                 cc.FORE("#bbbbbb")+":"+
                 cc.FORE('#995eff')+'{:02d}'.format(datetime.datetime.now().second)+
                 cc.FORE("#bbbbbb")+" - ")
-        return " "*2
+        # return " "*2
+        return return_
 
 class p():
     def INPUTX(text:str=""):
@@ -88,7 +90,7 @@ class p():
         if (mode == 'print'):
             print(stringr)
         elif (mode == 'text'):
-            return stringr
+            return str(stringr)
     def PRINTZ(text:str="", mode:str='print'):
         stringr = (
                 cc.timeIntro()+
